@@ -1,8 +1,9 @@
-# Лаб. 2.05 — Температурная зависимость диэлектрической проницаемости сегнетоэлектрика
+# physics-lab-205
+Automation of Calculations in Physics Lab Work 2.05
 
 Интерактивный веб-калькулятор для обработки данных лабораторной работы 2.05 кафедры общей физики СПбПУ Петра Великого.
 
-**[→ Открыть сайт](https://your-username.github.io/lab205)**
+**[→ Открыть сайт](https://wellerelis.github.io/physics-lab-205/)**
 
 ---
 
@@ -141,34 +142,11 @@ python plot_vak.py
 
 ---
 
-## Развёртывание на GitHub Pages
-
-```bash
-# 1. Создайте репозиторий на GitHub
-# 2. Загрузите файлы
-git init
-git add lab205.html
-git add README.md
-git commit -m "feat: add lab 2.05 ferroelectric permittivity calculator"
-git branch -M main
-git remote add origin https://github.com/your-username/lab205.git
-git push -u origin main
-
-# 3. В Settings → Pages → Source: Deploy from branch → main → / (root)
-```
-
-После этого сайт будет доступен по адресу:
-```
-https://your-username.github.io/lab205/lab205.html
-```
-
----
-
 ## Структура репозитория
 
 ```
 lab205/
-├── lab205.html     # Весь сайт в одном файле
+├── index.html     # Весь сайт в одном файле
 └── README.md       # Эта документация
 ```
 
@@ -186,11 +164,11 @@ lab205/
 
 | Работа | Тема | Репозиторий |
 |--------|------|-------------|
-| 2.01 | Эффект Холла в полупроводнике | [lab201](https://github.com/your-username/lab201) |
-| 2.03 | Фотопроводимость полупроводников | [lab203](https://github.com/your-username/lab203) |
+| 2.01 | Эффект Холла в полупроводнике | [lab201](https://wellerelis.github.io/physics-lab-201/) |
+| 2.03 | Фотопроводимость полупроводников | [lab203](https://wellerelis.github.io/physics-lab-203/) |
 | **2.05** | **Сегнетоэлектрик** | **этот репозиторий** |
-| 2.08 | Вакуумный диод в магнитном поле | [lab208](https://github.com/your-username/lab208) |
-| 2.15 | Ширина запрещённой зоны | [lab215](https://github.com/your-username/lab215) |
+| 2.08 | Вакуумный диод в магнитном поле | [lab208](https://wellerelis.github.io/physics-lab-208/) |
+| 2.15 | Ширина запрещённой зоны | [lab215](https://wellerelis.github.io/physics-lab-215/) |
 
 ---
 
