@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Работа 2.05 — Температурная зависимость диэлектрической проницаемости сегнетоэлектрика</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#102C26;--navy2:#1a3d35;--navy3:#234f44;
+  --silver:#F7E7CE;--silver2:#f0ddc0;--silver3:#e8d0a8;--silver-bg:#fdf6ea;
+  --white:#ffffff;--ink:#0e1f1b;--ink2:#3a5048;--ink3:#7a9a92;
+  --border:rgba(16,44,38,0.12);--border2:rgba(16,44,38,0.06);
+  --red:#8b2e1a;--red-bg:#fdf2ee;
+  --gold:#8a6020;--gold-bg:#fdf8ed;
+  --green-ok:#1a5a30;--green-bg:#eef7f1;
+  --warn:#7a5c00;--warn-bg:#fdf8ed;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --display:'Syne',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--silver-bg);color:var(--ink);font-size:14px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.hdr{background:var(--navy);color:var(--silver);padding:0 48px;height:62px;display:flex;align-items:center;gap:24px;position:sticky;top:0;z-index:300}
+.hdr-badge{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;background:rgba(232,238,247,0.12);border:1px solid rgba(232,238,247,0.25);color:var(--silver);padding:4px 12px;border-radius:2px;flex-shrink:0}
+.hdr h1{font-family:var(--display);font-size:15px;font-weight:700;letter-spacing:-0.3px;color:var(--silver);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-meta{margin-left:auto;font-size:11px;color:rgba(232,238,247,0.4);font-weight:300;letter-spacing:0.5px;white-space:nowrap;flex-shrink:0}
+.nav{background:var(--navy);border-bottom:1px solid rgba(232,238,247,0.1);padding:0 48px;display:flex;position:sticky;top:62px;z-index:200;overflow-x:auto;gap:0}
+.nav::-webkit-scrollbar{display:none}
+.nb{font-family:var(--display);font-size:11px;font-weight:500;letter-spacing:1px;color:rgba(232,238,247,0.45);padding:14px 22px;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s;text-transform:uppercase}
+.nb:hover{color:rgba(232,238,247,0.75)}
+.nb.on{color:var(--silver);border-bottom-color:var(--silver2)}
+.wrap{max-width:1120px;margin:0 auto;padding:36px 48px 96px}
+.tab{display:none}.tab.on{display:block}
+.pg-title{font-family:var(--display);font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--navy);margin-bottom:6px;line-height:1.1}
+.pg-sub{font-size:13px;color:var(--ink3);margin-bottom:32px;font-weight:300}
+.card{background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden;box-shadow:0 1px 3px rgba(13,31,60,.06)}
+.card-hd{padding:13px 20px;border-bottom:1px solid var(--border2);font-family:var(--display);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--ink2);display:flex;align-items:center;justify-content:space-between;background:rgba(232,238,247,.35)}
+.card-hd.dark{background:var(--navy);color:var(--silver);border-bottom:none}
+.card-body{padding:22px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.fld{display:flex;flex-direction:column;gap:6px}
+.fld label{font-family:var(--display);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink2)}
+.fld label .u{font-weight:400;text-transform:none;color:var(--ink3);letter-spacing:0}
+.fld input[type=number]{font-family:var(--mono);font-size:14px;background:var(--silver-bg);border:1.5px solid var(--border);border-radius:5px;padding:9px 13px;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s,background .15s;width:100%}
+.fld input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,31,60,.08);background:var(--white)}
+.fld input:disabled{color:var(--ink3);cursor:default;background:rgba(232,238,247,0.5)}
+.fld .hint{font-size:11px;color:var(--ink3);font-weight:300}
+.derived{background:rgba(13,31,60,.04);border:1.5px solid rgba(13,31,60,.14);border-radius:6px;padding:12px 18px;margin-top:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.derived .d-lbl{font-family:var(--display);font-size:12px;font-weight:700;color:var(--navy)}
+.derived .d-eq{color:var(--ink3);font-size:12px}
+.derived .d-val{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--navy)}
+.tbl-wrap{overflow-x:auto}
+table.dt{width:100%;border-collapse:collapse;font-size:13px}
+table.dt th{font-family:var(--display);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--silver);background:var(--navy);padding:11px 14px;text-align:center;white-space:nowrap;border-right:1px solid rgba(232,238,247,0.1)}
+table.dt th:last-child{border-right:none}
+table.dt th.sub{background:var(--navy2)}
+table.dt td{border-bottom:1px solid var(--border2);text-align:center;vertical-align:middle;padding:2px 4px}
+table.dt tr:hover td{background:rgba(232,238,247,0.45)}
+table.dt td.rn{font-family:var(--mono);font-size:11px;color:var(--ink3);width:36px;padding:8px 4px;background:rgba(232,238,247,0.3);border-right:1px solid var(--border)}
+table.dt td.cv{font-family:var(--mono);font-size:12px;color:var(--navy);padding:8px 12px;font-weight:500}
+table.dt td.cv.em{color:var(--ink3);font-weight:400}
+table.dt td input{font-family:var(--mono);font-size:13px;border:1.5px solid transparent;border-radius:4px;padding:6px 8px;width:80px;text-align:center;background:transparent;color:var(--ink);outline:none;transition:border-color .12s,background .12s}
+table.dt td input:focus{border-color:var(--navy);background:var(--white)}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:16px;padding:4px 8px;border-radius:4px;transition:color .12s,background .12s;line-height:1}
+.del-btn:hover{color:var(--red);background:var(--red-bg)}
+.fm{border:1.5px solid var(--border);border-left:4px solid var(--navy);border-radius:0 6px 6px 0;padding:16px 20px;margin:12px 0;background:rgba(232,238,247,0.18);line-height:1.9}
+.fm .fn{font-family:var(--display);font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:6px}
+.fm .fe{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--navy)}
+.fm .fe.hi{color:var(--red)}
+.fm .fs{font-size:12px;color:var(--ink2);margin-top:4px;font-weight:300}
+.fm .fr{display:inline-block;background:rgba(13,31,60,0.06);border:1.5px solid rgba(13,31,60,0.15);border-radius:5px;padding:7px 16px;font-family:var(--mono);font-size:14px;font-weight:500;color:var(--navy);margin-top:12px}
+.big-r{background:var(--navy);border-radius:8px;padding:22px 28px;display:flex;align-items:center;gap:22px;margin:18px 0;flex-wrap:wrap}
+.big-r .lbl{font-family:var(--display);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(232,238,247,0.55);margin-bottom:5px}
+.big-r .val{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--silver)}
+.big-r .u2{font-size:13px;color:rgba(232,238,247,0.55);margin-left:5px;font-weight:300}
+.big-r .bsep{width:1px;height:48px;background:rgba(232,238,247,0.2);flex-shrink:0}
+.notice{border-radius:6px;padding:11px 16px;font-size:13px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;font-weight:300}
+.notice.info{background:rgba(13,31,60,0.06);border:1.5px solid rgba(13,31,60,0.15);color:var(--navy2)}
+.notice.warn{background:var(--warn-bg);border:1.5px solid #e8d090;color:var(--warn)}
+.notice.good{background:var(--green-bg);border:1.5px solid #a8d8b0;color:var(--green-ok)}
+.notice.bad{background:var(--red-bg);border:1.5px solid #f0b8b0;color:var(--red)}
+.rlines{display:flex;flex-direction:column}
+.rline{display:flex;align-items:baseline;gap:8px 12px;padding:9px 0;border-bottom:1px solid var(--border2);flex-wrap:wrap}
+.rline:last-child{border-bottom:none}
+.rline .rk{font-size:13px;color:var(--ink2);flex:1 1 200px;min-width:0;font-weight:400}
+.rline .rv{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--navy);white-space:nowrap}
+.rline .rv.hi{color:var(--red)}
+.rline .ru{font-size:11px;color:var(--ink3);font-weight:300;white-space:nowrap}
+.rline.sep{padding:4px 0;border-bottom:1px dashed var(--border2);min-height:0}
+.pt{width:100%;border-collapse:collapse;font-size:13px}
+.pt td{padding:9px 16px;border-bottom:1px solid var(--border2)}
+.pt tr:last-child td{border-bottom:none}
+.pt td:first-child{font-family:var(--mono);font-weight:500;color:var(--navy);width:80px;font-size:12px}
+.pt td:nth-child(2){font-family:var(--mono);color:var(--ink);font-weight:400}
+.pt td:nth-child(3){color:var(--ink3);font-size:11px;width:60px}
+.pt td:nth-child(4){color:var(--ink3);font-size:11px;text-align:right;font-weight:300}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:5px;font-family:var(--display);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;cursor:pointer;border:1.5px solid transparent;transition:all .15s}
+.btn-outline{background:transparent;color:var(--ink2);border-color:var(--border)}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy)}
+.btn-solid{background:var(--navy);color:var(--silver);border-color:var(--navy)}
+.btn-solid:hover{background:var(--navy2)}
+.btn-gold{background:var(--gold-bg);color:var(--gold);border-color:rgba(138,96,32,0.3)}
+.btn-gold:hover{background:#f5eacc;border-color:var(--gold)}
+.btn-sm{padding:5px 12px;font-size:10px}
+.pp-trim-btn{padding:5px 14px;border:1px solid var(--border);border-radius:4px;background:transparent;font-family:var(--mono);font-size:11px;cursor:pointer;color:var(--ink2);transition:all .12s}
+.pp-trim-btn:hover,.pp-trim-btn.on{background:var(--navy);color:var(--silver);border-color:var(--navy)}
+.scale-btn{padding:4px 10px;border:1px solid var(--border);border-radius:4px;background:transparent;font-family:var(--mono);font-size:11px;cursor:pointer;color:var(--ink2);transition:all .12s}
+.scale-btn:hover,.scale-btn.on{background:var(--navy);color:var(--silver);border-color:var(--navy)}
+.ch-wrap{position:relative;height:400px;background:var(--white);border-radius:6px;overflow:hidden}
+.proto{background:var(--navy);border-radius:8px;padding:32px 36px;font-family:var(--mono);font-size:12px;line-height:2;white-space:pre-wrap;overflow-x:auto;max-height:700px;overflow-y:auto;color:rgba(232,238,247,0.85)}
+.proto::-webkit-scrollbar{width:6px;height:6px}
+.proto::-webkit-scrollbar-track{background:rgba(255,255,255,0.05)}
+.proto::-webkit-scrollbar-thumb{background:rgba(232,238,247,0.2);border-radius:3px}
+.toast{position:fixed;bottom:28px;right:28px;background:var(--navy);color:var(--silver);padding:11px 22px;border-radius:6px;font-family:var(--display);font-size:12px;font-weight:600;letter-spacing:0.5px;opacity:0;transform:translateY(10px);transition:all .22s cubic-bezier(.16,1,.3,1);pointer-events:none;z-index:999;box-shadow:0 8px 24px rgba(13,31,60,0.3)}
+.toast.on{opacity:1;transform:translateY(0)}
+.row-near-tc td{background:rgba(139,46,26,0.06)!important}
+.row-tc td{background:rgba(139,46,26,0.14)!important}
+.row-tc td.cv{font-weight:700}
+@media(max-width:768px){.wrap{padding:18px 18px 72px}.g2,.g3{grid-template-columns:1fr}.hdr,.nav{padding-left:18px;padding-right:18px}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-badge">2.05</div>
+  <h1>Температурная зависимость диэлектрической проницаемости сегнетоэлектрика</h1>
+  <span class="hdr-meta">СПбПУ Петра Великого · BaTiO₃(Sr)</span>
+</header>
+
+<nav class="nav">
+  <button class="nb on" onclick="go('params',this)">Параметры</button>
+  <button class="nb"    onclick="go('data',this)">Табл. 1 — Данные</button>
+  <button class="nb"    onclick="go('eps',this)">Табл. 2 + График ε(t)</button>
+  <button class="nb"    onclick="go('cw',this)">График 1/ε · Кюри–Вейсс</button>
+  <button class="nb"    onclick="go('print',this)">Печать графиков</button>
+  <button class="nb"    onclick="go('proto',this)">Протокол</button>
+</nav>
+
+<div class="wrap">
+
+<!-- ═══ ПАРАМЕТРЫ ═══ -->
+<div id="tab-params" class="tab on">
+  <div class="pg-title">Параметры</div>
+  <div class="pg-sub">Исходные данные со стенда установки. d = 0.5 мм, S = 80 мм² закреплены для вашего варианта.</div>
+
+  <div class="notice info">
+    <span>ℹ</span>
+    <span><strong>ТермоЭДС</strong> — это напряжение, которое вырабатывает термопара при нагреве. В вашей версии установки температуру показывает цифровой термометр MS6500 напрямую в °C, поэтому <strong>термоЭДС вам измерять не нужно</strong> — прибор уже пересчитал её в градусы. В старых установках термоЭДС (мВ) записывали в таблицу и переводили в °C по градуировочному графику.</span>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Образец — BaTiO₃ с примесью Sr (Исходные данные)</div>
+    <div class="card-body">
+      <div class="g3">
+        <div class="fld">
+          <label>d <span class="u">— толщина образца, мм</span></label>
+          <input type="number" id="p_d" value="0.5" step="0.01" min="0.01" oninput="recalc()">
+          <div class="hint">со стенда установки</div>
+        </div>
+        <div class="fld">
+          <label>S <span class="u">— площадь обкладок, мм²</span></label>
+          <input type="number" id="p_S" value="80" step="1" min="1" oninput="recalc()">
+          <div class="hint">со стенда установки</div>
+        </div>
+        <div class="fld">
+          <label>ε₀ <span class="u">— Ф/м · 10⁻¹²</span></label>
+          <input type="number" id="p_eps0" value="8.85" step="0.01" min="1" oninput="recalc()">
+          <div class="hint">электрическая постоянная (× 10⁻¹²)</div>
+        </div>
+      </div>
+      <div class="derived" id="derived_coeff"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Сводка параметров (СИ)</div>
+    <div class="card-body" style="padding:0">
+      <table class="pt"><tbody id="pt-body"></tbody></table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Ключевые формулы</div>
+    <div class="card-body">
+      <div class="fm">
+        <div class="fn">Диэлектрическая проницаемость — формула стенда</div>
+        <div class="fe hi">ε = C · d / (ε₀ · S)</div>
+        <div class="fs">C — ёмкость (Ф), d — толщина (м), S — площадь (м²), ε₀ = 8.85·10⁻¹² Ф/м. Безразмерная величина.</div>
+      </div>
+      <div class="fm">
+        <div class="fn">Закон Кюри–Вейсса — при T &gt; θ_k</div>
+        <div class="fe hi">ε = A / (T − θ₀)  →  1/ε = (1/A)·T − θ₀/A</div>
+        <div class="fs">Линейный участок на графике 1/ε(T): угл. коэф. b = 1/A, своб. член a = −θ₀/A.<br>
+        МПТ вычисляет b = 1/A и погрешность Δb = Δ(1/A). Затем: A = 1/b, θ₀ = −a/b.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ТАБЛИЦА 1 ═══ -->
+<div id="tab-data" class="tab">
+  <div class="pg-title">Таблица 1</div>
+  <div class="pg-sub">Измеренные значения температуры t (°C) и ёмкости C (нФ). Шаг 3°C, после максимума — шаг 1°C.</div>
+
+  <div class="notice info">
+    <span>ℹ</span>
+    <span>Температуру t (°C) читайте с термометра MS6500 напрямую. Ёмкость C (нФ) — с измерителя MV6243. Шаг 3°C до максимума ёмкости, затем 1°C — особенно важно для точного определения θ<sub>k</sub>.</span>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Таблица 1 — t (°C) и C (нФ)</div>
+    <div class="card-body" style="padding:0">
+      <div class="tbl-wrap">
+        <table class="dt">
+          <thead><tr>
+            <th>№ изм</th>
+            <th>t, °C</th>
+            <th>C, нФ</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="t1-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="padding:14px 22px;border-top:1px solid var(--border2);display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-outline btn-sm" onclick="addRow()">+ Строка</button>
+      <button class="btn btn-gold btn-sm" onclick="fillReal()">★ Данные 10.04.2026</button>
+      <button class="btn btn-outline btn-sm" onclick="fillDemo()">Демо-данные</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ТАБЛИЦА 2 + ГРАФИК ε(t) ═══ -->
+<div id="tab-eps" class="tab">
+  <div class="pg-title">Таблица 2 + График ε(t)</div>
+  <div class="pg-sub">Вычисленные ε и 1/ε по формуле ε = C·d/(ε₀·S). Строка с θ<sub>k</sub> выделена — это максимум ε.</div>
+
+  <div id="eps_notice"></div>
+
+  <div class="card">
+    <div class="card-hd">Таблица 2 — ε и 1/ε</div>
+    <div class="card-body" style="padding:0">
+      <div class="tbl-wrap">
+        <table class="dt">
+          <thead><tr>
+            <th>№ изм</th>
+            <th>t, °C</th>
+            <th>T, K</th>
+            <th>C, нФ</th>
+            <th class="sub">ε</th>
+            <th class="sub">1/ε</th>
+          </tr></thead>
+          <tbody id="t2-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd" style="text-transform:none;letter-spacing:0.8px">ТЕМПЕРАТУРА КЮРИ θ<sub>k</sub></div>
+    <div class="card-body" style="padding:16px 22px">
+      <div class="derived">
+        <span class="d-lbl">θ<sub>k</sub></span>
+        <span class="d-eq">=</span>
+        <span class="d-val" id="tc_val">— °C</span>
+        <span id="tc_sub" style="font-size:12px;color:var(--ink3);font-weight:300;margin-left:6px"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd" style="justify-content:space-between">
+      <span>График ε(t)</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span style="font-family:var(--display);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink3)">Масштаб Y:</span>
+        <button id="sc_eps_auto" class="scale-btn on" onclick="setScaleEps('auto',this)">Авто</button>
+        <button id="sc_eps_lin"  class="scale-btn"    onclick="setScaleEps('lin',this)">Линейный</button>
+        <button id="sc_eps_log"  class="scale-btn"    onclick="setScaleEps('log',this)">Лог.</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="ch-wrap"><canvas id="gc_eps"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ЗАКОН КЮРИ–ВЕЙССА ═══ -->
+<div id="tab-cw" class="tab">
+  <div class="pg-title">График 1/ε(T) · Закон Кюри–Вейсса</div>
+  <div class="pg-sub">Линейный участок при T &gt; T<sub>k</sub>. МПТ → коэф. 1/A и погрешность. Из МНК → θ₀.</div>
+
+  <div class="card">
+    <div class="card-hd" style="text-transform:none;letter-spacing:0.8px">ВЫБОР ЛИНЕЙНОГО УЧАСТКА (T &gt; θ<sub>k</sub>)</div>
+    <div class="card-body">
+      <div class="notice info">
+        <span>ℹ</span>
+        <span>Задайте № строк <strong>только выше θ<sub>k</sub></strong>. На вашем графике θ<sub>k</sub> ≈ 109 °C — это строка 30. Начните с № 31 или позже. Следите за R² — при правильном выборе он должен быть близок к 1.</span>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px">
+        <div class="fld" style="flex:0 0 auto">
+          <label>Начало №</label>
+          <input type="number" id="cw_from" value="1" min="1" step="1" style="width:80px" oninput="recalcCW()">
+        </div>
+        <div class="fld" style="flex:0 0 auto">
+          <label>Конец №</label>
+          <input type="number" id="cw_to" value="999" min="1" step="1" style="width:80px" oninput="recalcCW()">
+        </div>
+        <div id="cw_info" style="font-family:var(--mono);font-size:12px;color:var(--ink3);padding-bottom:9px"></div>
+      </div>
+      <div style="margin-bottom:6px;font-family:var(--display);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink3)">Режим МПТ:</div>
+      <div style="display:flex;gap:6px">
+        <button id="ppt0" class="pp-trim-btn on" onclick="setPpTrim(0,this)">1…n</button>
+        <button id="ppt1" class="pp-trim-btn" onclick="setPpTrim(1,this)">2…n</button>
+        <button id="ppt2" class="pp-trim-btn" onclick="setPpTrim(2,this)">3…n</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd" style="justify-content:space-between">
+      <span>График 1/ε(T)</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <span style="font-family:var(--display);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink3)">Масштаб Y:</span>
+        <button id="sc_cw_auto" class="scale-btn on" onclick="setScaleCW('auto',this)">Авто</button>
+        <button id="sc_cw_full" class="scale-btn"    onclick="setScaleCW('full',this)">Все точки</button>
+        <button id="sc_cw_lin"  class="scale-btn"    onclick="setScaleCW('lin',this)">Лин. уч.</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="ch-wrap"><canvas id="gc_cw"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd" style="text-transform:none;letter-spacing:0.8px">МНК — 1/ε = (1/A)·T − θ₀/A</div>
+    <div class="card-body">
+      <div class="rlines" id="mnk_lines">
+        <div class="notice warn" style="margin:0"><span>⚠</span><span>Введите данные в таблицу 1.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Метод парных точек — коэффициент 1/A и погрешность</div>
+    <div class="card-body">
+      <div id="pp_tbl"></div>
+      <div class="rlines" id="pp_lines" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd dark" style="text-transform:none;letter-spacing:0.8px">Константа Кюри–Вейсса A и θ₀</div>
+    <div class="card-body">
+      <div id="cw_detail">
+        <div class="notice warn" style="margin:0"><span>⚠</span><span>Нет данных.</span></div>
+      </div>
+      <div class="big-r" id="cw_big" style="display:none">
+        <div><div class="lbl">1/A (угл. коэф.)</div><div class="val" id="big_slope">—<span class="u2">K⁻¹</span></div></div>
+        <div class="bsep"></div>
+        <div><div class="lbl">Константа A</div><div class="val" id="big_A">—<span class="u2">K</span></div></div>
+        <div class="bsep"></div>
+        <div><div class="lbl">θ₀ (Кюри-Вейса)</div><div class="val" id="big_T0">—<span class="u2">K</span></div></div>
+        <div class="bsep"></div>
+        <div><div class="lbl">θ<sub>k</sub> − θ₀</div><div class="val" id="big_diff">—<span class="u2">K</span></div></div>
+      </div>
+      <div id="cw_type_note" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ПЕЧАТЬ ГРАФИКОВ ═══ -->
+<div id="tab-print" class="tab">
+  <div class="pg-title">Печать графиков</div>
+  <div class="pg-sub">Готовые графики для публикации — альбомный лист A4, поля ГОСТ 7.32, Times New Roman, 300 dpi.</div>
+
+  <div class="g2">
+
+    <div class="card">
+      <div class="card-hd">График 1 — ε(t)</div>
+      <div class="card-body" style="padding:12px">
+        <div style="background:#f8f8f8;border:1px solid var(--border);border-radius:4px;overflow:hidden">
+          <canvas id="prev_eps" style="width:100%;display:block"></canvas>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--ink3);font-style:italic">
+          Рис. 1. Температурная зависимость диэлектрической проницаемости ε(t) сегнетоэлектрика BaTiO₃(Sr).
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">График 2 — 1/ε(T)</div>
+      <div class="card-body" style="padding:12px">
+        <div style="background:#f8f8f8;border:1px solid var(--border);border-radius:4px;overflow:hidden">
+          <canvas id="prev_cw" style="width:100%;display:block"></canvas>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--ink3);font-style:italic">
+          Рис. 2. Зависимость 1/ε от температуры T при T &gt; θ<sub>k</sub>. Прямая — МНК (закон Кюри–Вейсса).
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <div class="card-hd dark">↓ Скачать Python-скрипт</div>
+    <div class="card-body">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn btn-solid" onclick="downloadPyScript()">↓ Скачать plot_vak.py</button>
+        <div style="font-size:12px;color:var(--ink3)">Данные из таблицы 1 уже вставлены в скрипт автоматически</div>
+      </div>
+      <div class="notice info" style="margin-bottom:0">
+        <span>ℹ</span>
+        <div>
+          <strong>Как пользоваться:</strong><br>
+          1. Нажмите кнопку — скачается файл <code style="font-family:var(--mono);background:rgba(0,0,0,0.07);padding:1px 5px;border-radius:3px">plot_vak.py</code><br>
+          2. Установите библиотеку, если ещё нет:<br>
+          <code style="font-family:var(--mono);background:rgba(0,0,0,0.07);padding:2px 8px;border-radius:3px;display:inline-block;margin:4px 0">pip install matplotlib</code><br>
+          3. Запустите скрипт:<br>
+          <code style="font-family:var(--mono);background:rgba(0,0,0,0.07);padding:2px 8px;border-radius:3px;display:inline-block;margin:4px 0">python plot_vak.py</code><br>
+          4. В той же папке появятся файлы:<br>
+          <code style="font-family:var(--mono);background:rgba(0,0,0,0.07);padding:2px 8px;border-radius:3px;display:inline-block;margin:4px 0">Fig1_eps_t.pdf &nbsp; Fig1_eps_t.png</code><br>
+          <code style="font-family:var(--mono);background:rgba(0,0,0,0.07);padding:2px 8px;border-radius:3px;display:inline-block;margin:4px 0">Fig2_inv_eps_T.pdf &nbsp; Fig2_inv_eps_T.png</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd">Параметры оформления</div>
+    <div class="card-body">
+      <div class="rlines">
+        <div class="rline"><div class="rk">Формат листа</div><div class="rv">A4 альбомный, 297×210 мм</div></div>
+        <div class="rline"><div class="rk">Поля (ГОСТ 7.32-2017)</div><div class="rv">лево 30 мм · право 10 мм · верх 20 мм · низ 20 мм</div></div>
+        <div class="rline"><div class="rk">Шрифт</div><div class="rv">Times New Roman, 10 pt (оси), 9 pt (числа, легенда)</div></div>
+        <div class="rline"><div class="rk">Толщина осей и рамки</div><div class="rv">1.0 pt</div></div>
+        <div class="rline"><div class="rk">Толщина линии МНК</div><div class="rv">1.5 pt</div></div>
+        <div class="rline"><div class="rk">Маркеры</div><div class="rv">● 4 pt, чёрные</div></div>
+        <div class="rline"><div class="rk">Разрешение PNG</div><div class="rv">300 dpi</div></div>
+        <div class="rline"><div class="rk">Формат PDF</div><div class="rv">Векторный, шрифты TrueType (pdf.fonttype=42)</div></div>
+        <div class="rline"><div class="rk">Тики</div><div class="rv">Внутрь, все 4 стороны рамки</div></div>
+        <div class="rline"><div class="rk">Сетка</div><div class="rv">Основная, пунктирная, серая</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ ПРОТОКОЛ ═══ -->
+<div id="tab-proto" class="tab">
+  <div class="pg-title">Протокол</div>
+  <div class="pg-sub">Вывод напишите самостоятельно. Все ключевые данные и шаги вычислений — ниже.</div>
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+    <button class="btn btn-solid" onclick="copyProto()">Скопировать</button>
+    <button class="btn btn-outline" onclick="buildProtocol();showToast('Обновлено ✓')">Обновить</button>
+  </div>
+  <div class="proto" id="proto">Введите данные и перейдите на эту вкладку.</div>
+</div>
+
+</div><!-- /wrap -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  STUDENT T
+// ═══════════════════════════════════════════════════════════
+const STUDENT_T={1:6.314,2:2.920,3:2.353,4:2.132,5:2.015,
+  6:1.943,7:1.895,8:1.860,9:1.833,10:1.812,11:1.796,12:1.782,
+  14:1.761,16:1.746,18:1.734,20:1.725,25:1.708,30:1.697,
+  40:1.684,60:1.671,120:1.658};
+function tSt(f){
+  if(f<=0)return NaN;
+  const ks=Object.keys(STUDENT_T).map(Number).sort((a,b)=>a-b);
+  for(const k of ks)if(f<=k)return STUDENT_T[k];
+  return 1.645;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ФОРМАТИРОВАНИЕ  — экспонента строго через ·10^n
+// ═══════════════════════════════════════════════════════════
+// HTML-версия: использует <sup> теги, для innerHTML
+function sciH(v, sig=4){
+  if(!isFinite(v)) return '—';
+  if(v===0) return '0';
+  const sign = v<0 ? '−' : '';
+  const av = Math.abs(v);
+  const e = Math.floor(Math.log10(av));
+  const m = parseFloat((av/Math.pow(10,e)).toPrecision(sig));
+  // Проверяем, не получился ли m=10 из-за округления
+  const mFinal = m >= 10 ? parseFloat((av/Math.pow(10,e+1)).toPrecision(sig)) : m;
+  const eFinal = m >= 10 ? e+1 : e;
+  if(eFinal===0) return sign+String(mFinal);
+  if(eFinal===1) return sign+String(parseFloat((av).toPrecision(sig)));
+  return `${sign}${mFinal}·10<sup>${eFinal}</sup>`;
+}
+// Текстовая версия: для протокола (plaintext), использует *10^
+function sciT(v, sig=4){
+  if(!isFinite(v)) return '—';
+  if(v===0) return '0';
+  const sign = v<0 ? '-' : '';
+  const av = Math.abs(v);
+  const e = Math.floor(Math.log10(av));
+  const m = parseFloat((av/Math.pow(10,e)).toPrecision(sig));
+  const mFinal = m >= 10 ? parseFloat((av/Math.pow(10,e+1)).toPrecision(sig)) : m;
+  const eFinal = m >= 10 ? e+1 : e;
+  if(eFinal===0) return sign+String(mFinal);
+  if(eFinal===1) return sign+String(parseFloat(av.toPrecision(sig)));
+  return `${sign}${mFinal}*10^${eFinal}`;
+}
+function f4(v){return isFinite(v)?parseFloat(v.toPrecision(4)).toString():'—';}
+function f5(v){return isFinite(v)?parseFloat(v.toPrecision(5)).toString():'—';}
+function s(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+function sv(id,txt){const el=document.getElementById(id);if(el)el.textContent=txt;}
+
+// ═══════════════════════════════════════════════════════════
+//  ПАРАМЕТРЫ
+// ═══════════════════════════════════════════════════════════
+function getP(){
+  const d  = parseFloat(document.getElementById('p_d').value)*1e-3;
+  const Sm = parseFloat(document.getElementById('p_S').value)*1e-6;
+  const e0 = parseFloat(document.getElementById('p_eps0').value)*1e-12;
+  const k  = d/(e0*Sm);
+  return{d,Sm,e0,k};
+}
+function updParams(){
+  const p=getP();
+  // Корректная запись коэффициента: d/(ε₀·S)
+  s('derived_coeff',
+    `<span class="d-lbl">k = d / (ε₀·S)</span>
+     <span class="d-eq">=</span>
+     <span class="d-val">${sciH(p.k,4)}</span>
+     <span style="font-size:11px;color:var(--ink3)">Ф⁻¹·м⁻¹ &nbsp;→&nbsp; ε = C[Ф] · k</span>`
+  );
+  s('pt-body',[
+    ['d',         sciH(p.d,4),  'м',         'толщина образца'],
+    ['S',         sciH(p.Sm,4), 'м²',        'площадь обкладок'],
+    ['ε₀',        sciH(p.e0,4), 'Ф/м',       'электрическая постоянная'],
+    ['k = d/(ε₀S)',sciH(p.k,4), 'Ф⁻¹·м⁻¹',  'коэф.: ε = C[Ф]·k'],
+  ].map(([lbl,val,unit,comm])=>
+    `<tr><td>${lbl}</td><td>${val}</td><td>${unit}</td><td>${comm}</td></tr>`
+  ).join(''));
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ДАННЫЕ ТАБЛИЦЫ 1
+// ═══════════════════════════════════════════════════════════
+let rows=[];
+
+function renderT1(){
+  const tbody=document.getElementById('t1-tbody');
+  if(!tbody)return;
+  tbody.innerHTML=rows.map((r,i)=>`<tr>
+    <td class="rn">${i+1}</td>
+    <td><input type="number" placeholder="°C" value="${r.tc}" style="width:72px"
+        oninput="rows[${i}].tc=this.value;recalcAll()"></td>
+    <td><input type="number" placeholder="нФ" value="${r.C}" style="width:80px"
+        oninput="rows[${i}].C=this.value;recalcAll()"></td>
+    <td><button class="del-btn" onclick="delRow(${i})">×</button></td>
+  </tr>`).join('');
+}
+function addRow(){rows.push({tc:'',C:''});renderT1();recalcAll();}
+function delRow(i){rows.splice(i,1);renderT1();recalcAll();}
+
+// ★ Реальные данные эксперимента 10.04.2026
+const REAL=[
+  [22,5.9],[25,6.03],[28,6.27],[31,6.54],[34,7],[37,7.42],[40,7.63],
+  [43,7.7],[46,7.72],[49,7.71],[52,7.7],[55,7.67],[58,7.68],[61,7.69],
+  [64,7.73],[67,7.79],[70,7.88],[73,8.01],[76,8.17],[79,8.39],[82,8.66],
+  [85,9],[88,9.57],[91,10.18],[94,11.31],[97,13.62],[100,19.69],
+  [103,26.9],[106,32.5],[109,33.1],[110,32.4],[111,31.7],[112,30.7],
+  [113,30],[114,28.9],[115,28.1],[116,27.3],[117,26.6],[118,25.6],
+  [119,24.8],[120,24]
+];
+function fillReal(){
+  rows=REAL.map(d=>({tc:String(d[0]),C:String(d[1])}));
+  renderT1();recalcAll();showToast('Данные 10.04.2026 загружены ✓');
+}
+
+// Демо BaTiO3:Sr с более выраженным пиком
+const DEMO=[
+  [20,2.5],[23,2.7],[26,3.0],[29,3.3],[32,3.7],[35,4.2],[38,4.8],[41,5.6],
+  [44,6.8],[47,8.5],[50,11.5],[53,16.2],[56,26],[59,52],[60,78],[61,118],
+  [62,195],[63,340],[64,510],[65,420],[66,320],[67,250],[68,198],[69,160],
+  [70,132],[71,110],[72,92],[73,78],[74,67],[75,58],[76,51],[77,45],[78,40],
+  [79,36],[80,32],[83,26],[86,21],[89,17.5]
+];
+function fillDemo(){
+  rows=DEMO.map(d=>({tc:String(d[0]),C:String(d[1])}));
+  renderT1();recalcAll();showToast('Демо-данные загружены ✓');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ВЫЧИСЛЕНИЕ
+// ═══════════════════════════════════════════════════════════
+function getValid(){
+  const p=getP();
+  return rows.map((r,i)=>{
+    const tc=parseFloat(r.tc), C=parseFloat(r.C)*1e-9;
+    if(!isFinite(tc)||!isFinite(C)||C<=0)return null;
+    const T=tc+273.15;
+    const eps=C*p.k;
+    if(!isFinite(eps)||eps<=0)return null;
+    return{tc,T,C,eps,invEps:1/eps,idx:i};
+  }).filter(Boolean);
+}
+
+let epsChart=null, cwChart=null, ppTrim=0;
+let scaleEps='auto', scaleCW='auto';
+
+// ═══════════════════════════════════════════════════════════
+//  ГЛАВНЫЙ ПЕРЕСЧЁТ
+// ═══════════════════════════════════════════════════════════
+function recalcAll(){
+  updParams();
+  const pts=getValid();
+
+  // Найти Tc (максимум ε)
+  let Tc_C=NaN, epsMax=0;
+  pts.forEach(pt=>{if(pt.eps>epsMax){epsMax=pt.eps;Tc_C=pt.tc;}});
+  const Tc_K=isFinite(Tc_C)?Tc_C+273.15:NaN;
+
+  // Таблица 2
+  const tbody2=document.getElementById('t2-tbody');
+  if(tbody2){
+    tbody2.innerHTML=pts.map((pt,i)=>{
+      const isTc=(pt.tc===Tc_C);
+      const near=(Math.abs(pt.tc-Tc_C)<=2)&&!isTc;
+      const cls=isTc?'row-tc':near?'row-near-tc':'';
+      return`<tr class="${cls}">
+        <td class="rn">${i+1}</td>
+        <td class="cv">${f4(pt.tc)}</td>
+        <td class="cv em">${f4(pt.T)}</td>
+        <td class="cv em">${f4(pt.C*1e9)}</td>
+        <td class="cv">${f4(pt.eps)}</td>
+        <td class="cv">${sciH(pt.invEps,4)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Tc
+  if(isFinite(Tc_C)){
+    s('eps_notice',`<div class="notice good"><span>✓</span>
+      <span>θ<sub>k</sub> = <b>${f4(Tc_C)} °C</b> (T = ${f4(Tc_K)} K) — максимум ε(t),
+      ε<sub>max</sub> = ${sciH(epsMax,4)}</span></div>`);
+    sv('tc_val',`${f4(Tc_C)} °C`);
+    s('tc_sub',`T = ${f4(Tc_K)} K &nbsp; | &nbsp; ε<sub>max</sub> = ${sciH(epsMax,4)}`);
+  } else if(pts.length<2){
+    s('eps_notice',`<div class="notice warn"><span>⚠</span><span>Введите данные в таблицу 1.</span></div>`);
+    sv('tc_val','— °C'); s('tc_sub','');
+  } else {
+    s('eps_notice',''); sv('tc_val','— °C'); s('tc_sub','');
+  }
+
+  buildEpsChart(pts, Tc_C);
+  recalcCW(pts, Tc_K);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ГРАФИК ε(t)
+// ═══════════════════════════════════════════════════════════
+function setScaleEps(mode, btn){
+  scaleEps=mode;
+  document.querySelectorAll('[id^="sc_eps_"]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  buildEpsChart(getValid(), (() => {
+    let mx=0,tc=NaN;
+    getValid().forEach(p=>{if(p.eps>mx){mx=p.eps;tc=p.tc;}});
+    return tc;
+  })());
+}
+
+function buildEpsChart(pts, Tc_C){
+  const ctx=document.getElementById('gc_eps');if(!ctx)return;
+  if(epsChart){epsChart.destroy();epsChart=null;}
+  if(!pts.length)return;
+  const eMax=Math.max(...pts.map(p=>p.eps));
+  const tMin=Math.min(...pts.map(p=>p.tc)), tMax=Math.max(...pts.map(p=>p.tc));
+  const isLog=(scaleEps==='log');
+
+  const datasets=[{
+    label:'\u03b5(t)',data:pts.map(p=>({x:p.tc,y:p.eps})),
+    backgroundColor:'#234f44',borderColor:'#102C26',
+    pointRadius:4,pointHoverRadius:6,showLine:true,borderWidth:1.5,tension:0.3
+  }];
+  if(isFinite(Tc_C)) datasets.push({
+    label:'\u03b8k = '+f4(Tc_C)+' \xb0C',
+    data:[{x:Tc_C,y:isLog?1:0},{x:Tc_C,y:eMax*1.08}],
+    type:'line',borderColor:'#8b2e1a',borderWidth:2,borderDash:[6,3],
+    pointRadius:0,showLine:true,fill:false
+  });
+
+  // Форматтер тиков Y для ε (большие числа — просто целые)
+  const yEpsFmt = v => {
+    if(!isFinite(v)) return '';
+    if(Math.abs(v)<10000) return parseFloat(v.toPrecision(4)).toString();
+    const av=Math.abs(v), sign=v<0?'-':'';
+    const e=Math.floor(Math.log10(av));
+    const m=parseFloat((av/Math.pow(10,e)).toPrecision(3));
+    return sign+m+'\u00b710^'+e;
+  };
+
+  epsChart=new Chart(ctx.getContext('2d'),{type:'scatter',data:{datasets},options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{font:{family:'DM Mono',size:11},color:'#3a5048'}}},
+    scales:{
+      x:{title:{display:true,text:'t, \xb0C',font:{family:'DM Sans',size:12},color:'#3a5048'},
+         min:tMin-2,max:tMax+2,
+         ticks:{font:{family:'DM Mono',size:10},color:'#7a9a92'},grid:{color:'rgba(16,44,38,.06)'}},
+      y:{
+        type: isLog?'logarithmic':'linear',
+        title:{display:true,text:'\u03b5',font:{family:'DM Sans',size:12},color:'#3a5048'},
+        min: isLog?undefined:0,
+        ticks:{font:{family:'DM Mono',size:10},color:'#7a9a92',callback:yEpsFmt},
+        grid:{color:'rgba(16,44,38,.06)'}
+      }
+    }
+  }});
+}
+
+// ═══════════════════════════════════════════════════════════
+//  МНК
+// ═══════════════════════════════════════════════════════════
+function mnk(pts){
+  const n=pts.length;if(n<2)return null;
+  let sx=0,sy=0,sxy=0,sx2=0;
+  for(const p of pts){sx+=p.x;sy+=p.y;sxy+=p.x*p.y;sx2+=p.x*p.x;}
+  const D=n*sx2-sx*sx;if(Math.abs(D)<1e-60)return null;
+  const b=(n*sxy-sx*sy)/D, a=(sy-b*sx)/n;
+  const yM=sy/n;let ssR=0,ssT=0;
+  for(const p of pts){ssR+=(p.y-(a+b*p.x))**2;ssT+=(p.y-yM)**2;}
+  const R2=ssT>0?1-ssR/ssT:1;
+  let sB=NaN;
+  if(n>2){const sc=sx2-sx*sx/n;sB=sc>0?Math.sqrt(ssR/(n-2)/sc):NaN;}
+  return{a,b,R2,sB,n};
+}
+
+// ═══════════════════════════════════════════════════════════
+//  МПТ
+// ═══════════════════════════════════════════════════════════
+function mpt(pts,trim){
+  const used=pts.slice(trim,trim>0?pts.length-trim:undefined);
+  const n=used.length;if(n<4)return null;
+  const half=Math.floor(n/2),odd=(n%2!==0);
+  const lo=used.slice(0,half),hi=used.slice(odd?half+1:half);
+  const k=Math.min(lo.length,hi.length);if(k<2)return null;
+  const pairs=lo.slice(0,k).map((l,i)=>({
+    li:l.origIdx,ui:hi[i].origIdx,
+    xi:l.x,xj:hi[i].x,yi:l.y,yj:hi[i].y,
+    bi:(hi[i].y-l.y)/(hi[i].x-l.x)
+  }));
+  const bm=pairs.reduce((s,r)=>s+r.bi,0)/k;
+  const v=pairs.reduce((s,r)=>s+(r.bi-bm)**2,0)/(k*(k-1));
+  const sB=Math.sqrt(v),t=tSt(k-1);
+  return{pairs,bm,sB,dB:t*sB,t,k};
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ЗАКОН КЮРИ–ВЕЙССА
+// ═══════════════════════════════════════════════════════════
+function setScaleCW(mode, btn){
+  scaleCW=mode;
+  document.querySelectorAll('[id^="sc_cw_"]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  recalcCW();
+}
+
+function recalcCW(pts, Tc_K){
+  if(!pts) pts=getValid();
+  if(!isFinite(Tc_K)){
+    let mx=0;pts.forEach(p=>{if(p.eps>mx){mx=p.eps;Tc_K=p.T;}});
+  }
+
+  let fromN=parseInt(document.getElementById('cw_from').value)||1;
+  let toN  =parseInt(document.getElementById('cw_to').value)||999;
+  if(fromN<1)fromN=1; if(toN>pts.length)toN=pts.length;
+  document.getElementById('cw_from').max=pts.length;
+  document.getElementById('cw_to').max=pts.length;
+
+  const linPts=pts.slice(fromN-1,toN).map((pt,i)=>({
+    x:pt.T, y:pt.invEps, origIdx:i, tc:pt.tc
+  }));
+  sv('cw_info', linPts.length
+    ?`${linPts.length} точек (t от ${f4(linPts[0]?.tc)} до ${f4(linPts[linPts.length-1]?.tc)} °C)`
+    :'нет точек');
+
+  buildCWChart(pts.map((pt,i)=>({x:pt.T,y:pt.invEps,origIdx:i})), linPts, Tc_K);
+
+  const reg=mnk(linPts);
+  if(reg){
+    const r2cls=reg.R2>0.98?'':'hi';
+    const r2txt=reg.R2>0.98?'✓ хорошая линейность':reg.R2>0.90?'умеренная':'⚠ выберите только T > θ_k';
+    // Формулы МНК раскрыто
+    const n=reg.n;
+    const xArr=linPts.map(p=>p.x), yArr=linPts.map(p=>p.y);
+    const sx=xArr.reduce((a,v)=>a+v,0), sy=yArr.reduce((a,v)=>a+v,0);
+    const sxy=xArr.reduce((a,v,i)=>a+v*yArr[i],0);
+    const sx2=xArr.reduce((a,v)=>a+v*v,0);
+    const D=n*sx2-sx*sx;
+    s('mnk_lines',`
+      <div class="rline"><div class="rk">n точек в лин. участке</div><div class="rv">${n}</div></div>
+      <div class="rline"><div class="rk">ΣT</div><div class="rv">${sciH(sx,5)} K</div></div>
+      <div class="rline"><div class="rk">Σ(1/ε)</div><div class="rv">${sciH(sy,5)}</div></div>
+      <div class="rline"><div class="rk">Σ(T·1/ε)</div><div class="rv">${sciH(sxy,5)}</div></div>
+      <div class="rline"><div class="rk">ΣT²</div><div class="rv">${sciH(sx2,5)}</div></div>
+      <div class="rline"><div class="rk">D = n·ΣT² − (ΣT)²</div>
+        <div class="rv">${sciH(n,1)}·${sciH(sx2,4)} − (${sciH(sx,4)})² = ${sciH(D,5)}</div></div>
+      <div class="rline sep"></div>
+      <div class="rline"><div class="rk">b = (n·Σ(T·1/ε) − ΣT·Σ(1/ε)) / D</div>
+        <div class="rv">(${sciH(n,1)}·${sciH(sxy,4)} − ${sciH(sx,4)}·${sciH(sy,4)}) / ${sciH(D,4)}
+          = <b class="hi">${sciH(reg.b,5)} K⁻¹</b></div></div>
+      <div class="rline"><div class="rk">a = (Σ(1/ε) − b·ΣT) / n</div>
+        <div class="rv">(${sciH(sy,4)} − ${sciH(reg.b,4)}·${sciH(sx,4)}) / ${n}
+          = <b class="hi">${sciH(reg.a,5)}</b></div></div>
+      <div class="rline sep"></div>
+      <div class="rline"><div class="rk">Уравнение МНК: 1/ε = b·T + a</div>
+        <div class="rv">${sciH(reg.b,4)}·T + (${sciH(reg.a,4)})</div></div>
+      <div class="rline"><div class="rk">R²</div>
+        <div class="rv ${r2cls}">${reg.R2.toFixed(5)}</div>
+        <div class="ru">${r2txt}</div></div>
+      ${isFinite(reg.sB)?`<div class="rline"><div class="rk">s_b (СКО наклона МНК)</div><div class="rv">${sciH(reg.sB,4)} K⁻¹</div></div>`:''}
+    `);
+  } else {
+    s('mnk_lines','<div class="notice warn" style="margin:0"><span>⚠</span><span>Нужно не менее 2 точек.</span></div>');
+  }
+
+  const pp=mpt(linPts,ppTrim);
+  if(pp){
+    const sumSq=pp.pairs.reduce((s,r)=>s+(r.bi-pp.bm)**2,0);
+    let html=`<div class="tbl-wrap"><table class="dt" style="font-size:12px">
+      <thead><tr><th>Пара</th><th>i</th><th>j</th>
+        <th>T<sub>i</sub>, K</th><th>T<sub>j</sub>, K</th>
+        <th>(1/ε)<sub>i</sub></th><th>(1/ε)<sub>j</sub></th>
+        <th>b<sub>i</sub>, K⁻¹</th></tr></thead><tbody>`;
+    pp.pairs.forEach((r,n)=>{
+      html+=`<tr><td class="rn">${n+1}</td>
+        <td class="cv em">${r.li!=null?r.li+1:'—'}</td>
+        <td class="cv em">${r.ui!=null?r.ui+1:'—'}</td>
+        <td class="cv">${f4(r.xi)}</td><td class="cv">${f4(r.xj)}</td>
+        <td class="cv">${sciH(r.yi,4)}</td><td class="cv">${sciH(r.yj,4)}</td>
+        <td class="cv hi">${sciH(r.bi,4)}</td></tr>`;
+    });
+    html+='</tbody></table></div>';
+    s('pp_tbl',html);
+    // МПТ даёт ⟨b⟩; свободный член a берём из МНК для вычисления θ₀
+    const reg_for_t0 = reg; // reg уже вычислен выше
+    s('pp_lines',`
+      <div class="rline"><div class="rk">k = ⌊n/2⌋ пар</div><div class="rv">${pp.k}</div>
+        <div class="ru">f = k−1 = ${pp.k-1} (степени свободы)</div></div>
+      <div class="rline"><div class="rk">⟨b⟩ = (Σbᵢ) / k = (Σ из таблицы) / ${pp.k}</div>
+        <div class="rv hi"><b>${sciH(pp.bm,5)} K⁻¹</b></div></div>
+      <div class="rline sep"></div>
+      <div class="rline"><div class="rk">Σ(bᵢ − ⟨b⟩)²</div><div class="rv">${sciH(sumSq,5)}</div></div>
+      <div class="rline"><div class="rk">σ⟨b⟩ = √( Σ(bᵢ−⟨b⟩)² / (k·(k−1)) )</div>
+        <div class="rv">= √( ${sciH(sumSq,4)} / ${pp.k*(pp.k-1)} ) = ${sciH(pp.sB,4)} K⁻¹</div></div>
+      <div class="rline"><div class="rk">t(P=0.90; f=${pp.k-1})</div>
+        <div class="rv">${f4(pp.t)}</div><div class="ru">таблица Стьюдента</div></div>
+      <div class="rline"><div class="rk">Δb = t · σ⟨b⟩ = ${f4(pp.t)} · ${sciH(pp.sB,4)}</div>
+        <div class="rv">${sciH(pp.dB,4)} K⁻¹</div></div>
+      <div class="rline"><div class="rk">δb = Δb / |⟨b⟩| = ${sciH(pp.dB,4)} / ${sciH(Math.abs(pp.bm),4)}</div>
+        <div class="rv">${(Math.abs(pp.dB/pp.bm)*100).toFixed(2)} %</div></div>
+      <div class="rline"><div class="rk"><b>⟨b⟩ ± Δb = 1/A ± Δ(1/A)</b></div>
+        <div class="rv hi">(${sciH(pp.bm,5)} ± ${sciH(pp.dB,4)}) K⁻¹</div></div>
+      <div class="rline sep"></div>
+      <div class="rline" style="background:rgba(13,31,60,0.03);border-radius:4px;padding:8px 10px;margin-top:4px">
+        <div class="rk" style="font-size:12px;color:var(--ink3)">
+          ℹ МПТ даёт только наклон ⟨b⟩ = 1/A. Свободный член a = −θ₀/A
+          берётся из МНК (МПТ не вычисляет a).
+          Поэтому для θ₀ используют: <b>a (МНК)</b> и <b>⟨b⟩ (МПТ)</b>.
+        </div>
+      </div>
+      ${reg_for_t0 ? `
+      <div class="rline"><div class="rk">a (своб. член МНК, для θ₀)</div>
+        <div class="rv">${sciH(reg_for_t0.a,5)}</div></div>
+      <div class="rline"><div class="rk">θ₀ = −a / ⟨b⟩ = −(${sciH(reg_for_t0.a,4)}) / (${sciH(pp.bm,4)})</div>
+        <div class="rv hi"><b>${f4(-reg_for_t0.a/pp.bm)} K &nbsp;(${f4(-reg_for_t0.a/pp.bm - 273.15)} °C)</b></div></div>
+      ` : ''}
+    `);
+  } else {
+    s('pp_tbl','<div class="notice warn" style="margin:0"><span>⚠</span><span>Нужно не менее 4 точек.</span></div>');
+    s('pp_lines','');
+  }
+
+  // ── Константы A и θ₀ ──
+  // ИСПРАВЛЕН БАГ: slope может быть отрицательным (неправильный выбор участка)
+  // Физически b = 1/A > 0 для T > Tc. Вычисляем A независимо от знака.
+  const slope = pp ? pp.bm : (reg ? reg.b : NaN);
+  const slopeErr = pp ? pp.dB : (reg && isFinite(reg.sB) ? reg.sB : NaN);
+
+  // Проверяем: есть ли reg, и есть ли slope
+  if(isFinite(slope) && reg){
+    const A = 1/slope;           // может быть отрицательным если плохо выбран участок
+    const T0_K = -reg.a/slope;   // θ₀ в К
+    const T0_C = T0_K - 273.15;
+    const relSlope = isFinite(slopeErr) ? Math.abs(slopeErr/slope) : NaN;
+    const dA = isFinite(relSlope) ? Math.abs(A)*relSlope : NaN;
+    const diff_K = isFinite(Tc_K) ? Tc_K - T0_K : NaN;
+    const src = pp ? '⟨b⟩ (МПТ)' : 'b (МНК)';
+
+    s('cw_detail',`
+      <div class="rlines">
+        <div class="rline"><div class="rk">Используем ${src}</div><div class="rv">${sciH(slope,5)} K⁻¹</div></div>
+        <div class="rline sep"></div>
+        <div class="rline"><div class="rk">A = 1 / b = 1 / (${sciH(slope,5)})</div>
+          <div class="rv hi">= <b>${sciH(A,5)} K</b></div></div>
+        ${isFinite(dA)?`
+        <div class="rline"><div class="rk">δA = Δb / |⟨b⟩| = ${sciH(pp?pp.dB:reg.sB,4)} / ${sciH(Math.abs(slope),4)}</div>
+          <div class="rv">= ${(relSlope*100).toFixed(2)} %</div></div>
+        <div class="rline"><div class="rk">ΔA = δA · A = ${(relSlope*100).toFixed(2)}% · ${sciH(Math.abs(A),4)}</div>
+          <div class="rv">= ${sciH(dA,3)} K</div></div>
+        <div class="rline"><div class="rk"><b>A ± ΔA</b></div>
+          <div class="rv hi">(${sciH(A,5)} ± ${sciH(dA,3)}) K</div></div>`:''}
+        <div class="rline sep"></div>
+        <div class="rline"><div class="rk">a (своб. член МНК)</div><div class="rv">${sciH(reg.a,5)}</div></div>
+        <div class="rline"><div class="rk">θ₀ = −a / b = −(${sciH(reg.a,5)}) / (${sciH(slope,5)})</div>
+          <div class="rv hi">= <b>${f4(T0_K)} K (${f4(T0_C)} °C)</b></div></div>
+        <div class="rline sep"></div>
+        ${isFinite(Tc_K)?`<div class="rline"><div class="rk">θ<sub>k</sub> (из графика ε(t))</div>
+          <div class="rv">${f4(Tc_K)} K &nbsp;(${f4(Tc_K-273.15)} °C)</div></div>`:''}
+        ${isFinite(diff_K)?`<div class="rline"><div class="rk">θ<sub>k</sub> − θ₀</div>
+          <div class="rv">${f4(diff_K)} K</div></div>`:''}
+        ${slope<0?`<div class="rline"><div class="rk" style="color:var(--red)">⚠ Наклон отрицателен</div>
+          <div class="rv hi">Выберите только точки выше θ<sub>k</sub></div></div>`:''}
+      </div>
+    `);
+
+    document.getElementById('cw_big').style.display='flex';
+    s('big_slope',`${sciH(slope,4)}<span class="u2">K⁻¹</span>`);
+    s('big_A',`${sciH(A,4)}<span class="u2">K</span>`);
+    s('big_T0',`${f4(T0_K)}<span class="u2">K</span>`);
+    s('big_diff',isFinite(diff_K)?`${f4(diff_K)}<span class="u2">K</span>`:'—');
+
+    let typeNote='';
+    if(isFinite(A) && A>0 && isFinite(T0_K) && isFinite(Tc_K)){
+      const diff=Math.abs(Tc_K-T0_K);
+      if(A>=1e5&&A<=3e5){
+        typeNote=`<div class="notice good"><span>✓</span><span>A ≈ (1–3)·10⁵ K ${diff<=20?'и θ<sub>k</sub>−θ₀ = '+f4(diff)+' K':''} → 2-я группа (кислородно-октаэдрические, BaTiO₃ и подобные).</span></div>`;
+      } else if(A>=1e3&&A<=5e4&&diff<5){
+        typeNote=`<div class="notice good"><span>✓</span><span>A ≈ (1–5)·10³–10⁴ K и θ₀ ≈ θ<sub>k</sub> → 1-я группа (с водородными связями).</span></div>`;
+      } else {
+        typeNote=`<div class="notice info"><span>ℹ</span><span>A = ${sciH(A,3)} K, θ<sub>k</sub>−θ₀ = ${f4(diff)} K. 1-я группа: A ~ (1–5)·10³–10⁴ K, θ₀ ≈ θ<sub>k</sub>; 2-я группа (BaTiO₃): A ~ (1–3)·10⁵ K, θ₀ ≈ θ<sub>k</sub>−10 K.</span></div>`;
+      }
+    } else if(slope<0){
+      typeNote=`<div class="notice warn"><span>⚠</span><span>Наклон отрицателен — вероятно, в диапазон включены точки ниже θ<sub>k</sub>. Установите начало № выше строки с максимумом ε.</span></div>`;
+    }
+    s('cw_type_note', typeNote);
+  } else {
+    s('cw_detail','<div class="notice warn" style="margin:0"><span>⚠</span><span>Нет данных для расчёта констант.</span></div>');
+    document.getElementById('cw_big').style.display='none';
+    s('cw_type_note','');
+  }
+}
+
+function buildCWChart(allPts, linPts, Tc_K){
+  const ctx=document.getElementById('gc_cw');if(!ctx)return;
+  if(cwChart){cwChart.destroy();cwChart=null;}
+  if(!allPts.length)return;
+  const reg=mnk(linPts);
+  const linSet=new Set(linPts.map(p=>p.origIdx));
+  const outside=allPts.filter(p=>!linSet.has(p.origIdx));
+
+  // Диапазоны осей в зависимости от режима
+  let xMin,xMax,yMin,yMax;
+  const allX=allPts.map(p=>p.x), allY=allPts.map(p=>p.y);
+
+  if(scaleCW==='lin' && linPts.length>=2){
+    // Показываем только область T > Tc: от θk до конца
+    const linX=linPts.map(p=>p.x), linY=linPts.map(p=>p.y);
+    const xPad=(Math.max(...linX)-Math.min(...linX))*0.04||1;
+    const yPad=(Math.max(...linY)-Math.min(...linY))*0.12||Math.max(...linY)*0.08;
+    xMin = isFinite(Tc_K) ? Tc_K - xPad*0.5 : Math.min(...linX) - xPad;
+    xMax = Math.max(...linX) + xPad;
+    yMin = Math.max(0, Math.min(...linY) - yPad);
+    yMax = Math.max(...linY) + yPad;
+  } else if(scaleCW==='full'){
+    xMin=Math.min(...allX)-3; xMax=Math.max(...allX)+3; yMin=0;
+  } else {
+    xMin=Math.min(...allX)-3; xMax=Math.max(...allX)+3;
+  }
+
+  // МНК-линия: только в пределах линейного участка
+  const lineDots = reg && linPts.length>=2
+    ? [{x:linPts[0].x, y:reg.a+reg.b*linPts[0].x},
+       {x:linPts[linPts.length-1].x, y:reg.a+reg.b*linPts[linPts.length-1].x}]
+    : [];
+
+  // Линию θk не рисуем в режиме "Лин. уч." (она уже слева от начала)
+  const showTcLine = isFinite(Tc_K) && scaleCW !== 'lin';
+
+  const datasets=[
+    {label:'Все точки 1/\u03b5(T)', data:outside.map(p=>({x:p.x,y:p.y})),
+     backgroundColor:'rgba(16,44,38,.18)',borderColor:'rgba(16,44,38,.35)',
+     pointRadius:4,pointHoverRadius:6,showLine:false},
+    {label:'Лин. участок', data:linPts.map(p=>({x:p.x,y:p.y})),
+     backgroundColor:'#234f44',borderColor:'#102C26',
+     pointRadius:6,pointHoverRadius:8,showLine:false},
+  ];
+  if(reg) datasets.push({
+    label:'МНК', data:lineDots, type:'line',
+    borderColor:'#8b2e1a', borderWidth:2.5, pointRadius:0, showLine:true, fill:false
+  });
+  if(showTcLine){
+    datasets.push({
+      label:'\u03b8k = '+f4(Tc_K-273.15)+' \xb0C',
+      data:[{x:Tc_K,y:Math.min(...allY)},{x:Tc_K,y:Math.max(...allY)}],
+      type:'line', borderColor:'#8a6020', borderWidth:1.5, borderDash:[5,4],
+      pointRadius:0, showLine:true, fill:false
+    });
+  }
+
+  // Форматтер тиков Y: a·10ⁿ через Unicode-надстрочные символы
+  const SUP = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴',
+               '5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  const toSup = s => String(s).split('').map(c=>SUP[c]||c).join('');
+  const yTickFmt = v => {
+    if(!isFinite(v)) return '';
+    if(v===0) return '0';
+    const av=Math.abs(v), sign=v<0?'−':'';
+    const e=Math.floor(Math.log10(av));
+    const m=parseFloat((av/Math.pow(10,e)).toPrecision(3));
+    const mFixed = m>=10 ? parseFloat((av/Math.pow(10,e+1)).toPrecision(3)) : m;
+    const eFixed = m>=10 ? e+1 : e;
+    if(eFixed===0) return sign+String(mFixed);
+    if(eFixed===1) return sign+String(parseFloat(av.toPrecision(3)));
+    return sign+String(mFixed)+'·'+'10'+toSup(String(eFixed));
+  };
+  const yTickCount = 9;
+
+  cwChart=new Chart(ctx.getContext('2d'),{type:'scatter',data:{datasets},options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{labels:{font:{family:'DM Mono',size:11},color:'#3a5048'}}},
+    scales:{
+      x:{
+        title:{display:true,text:'T, K',font:{family:'DM Sans',size:12},color:'#3a5048'},
+        min:xMin, max:xMax,
+        ticks:{font:{family:'DM Mono',size:10},color:'#7a9a92'},
+        grid:{color:'rgba(16,44,38,.06)'}
+      },
+      y:{
+        title:{display:true,text:'1/\u03b5',font:{family:'DM Sans',size:12},color:'#3a5048'},
+        ...(yMin!==undefined?{min:yMin}:{}),
+        ...(yMax!==undefined?{max:yMax}:{}),
+        ticks:{font:{family:'DM Mono',size:10},color:'#7a9a92',callback:yTickFmt,maxTicksLimit:yTickCount},
+        grid:{color:'rgba(16,44,38,.06)'}
+      }
+    }
+  }});
+}
+
+function setPpTrim(n,btn){
+  ppTrim=n;
+  [0,1,2].forEach(i=>{const b=document.getElementById('ppt'+i);if(b)b.classList.toggle('on',i===n);});
+  recalcCW();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ПРОТОКОЛ
+// ═══════════════════════════════════════════════════════════
+function buildProtocol(){
+  const p=getP();
+  const pts=getValid();
+  let epsMax=0,Tc_C=NaN,Tc_K=NaN;
+  pts.forEach(pt=>{if(pt.eps>epsMax){epsMax=pt.eps;Tc_C=pt.tc;Tc_K=pt.T;}});
+
+  let fromN=Math.max(1,parseInt(document.getElementById('cw_from').value)||1);
+  let toN  =Math.min(pts.length,parseInt(document.getElementById('cw_to').value)||999);
+  const linPts=pts.slice(fromN-1,toN).map((pt,i)=>({x:pt.T,y:pt.invEps,origIdx:i,tc:pt.tc}));
+  const reg=mnk(linPts);
+  const pp=mpt(linPts,ppTrim);
+  const slope=pp?pp.bm:(reg?reg.b:NaN);
+  const A=isFinite(slope)?1/slope:NaN;
+  const T0_K=isFinite(slope)&&reg?-reg.a/slope:NaN;
+  const T0_C=isFinite(T0_K)?T0_K-273.15:NaN;
+  const relSlope=pp&&isFinite(pp.dB)?Math.abs(pp.dB/pp.bm):NaN;
+  const dA=isFinite(A)&&isFinite(relSlope)?Math.abs(A)*relSlope:NaN;
+
+  const D='─'.repeat(64);const L=[];
+  L.push('ПРОТОКОЛ ЛАБОРАТОРНОЙ РАБОТЫ');
+  L.push('Работа 2.05  «Температурная зависимость диэлектрической проницаемости сегнетоэлектрика»');
+  L.push('СПбПУ Петра Великого');
+  L.push(D);L.push('');
+
+  L.push('1. ИСХОДНЫЕ ДАННЫЕ (со стенда)');L.push('');
+  L.push(`  Образец: BaTiO3 с примесью Sr, форма прямоугольного параллелепипеда`);
+  L.push(`  d    = ${sciT(p.d,4)} м  (толщина)`);
+  L.push(`  S    = ${sciT(p.Sm,4)} м^2  (площадь обкладок)`);
+  L.push(`  eps0 = ${sciT(p.e0,4)} Ф/м`);
+  L.push(`  k = d/(eps0*S) = ${sciT(p.k,4)}  (коэф.: eps = C[Ф]*k)`);
+  L.push('');
+  L.push(`  Приборы: Измеритель температуры MS6500, Измеритель ёмкости MV6243`);
+  L.push('');
+
+  L.push(D);
+  L.push('2. ТАБЛИЦА 1 — ИЗМЕРЕННЫЕ ДАННЫЕ');L.push('');
+  L.push('  | № изм | t, °C  | C, нФ   |');
+  L.push('  |-------|--------|---------|');
+  rows.forEach((r,i)=>{
+    const tc=parseFloat(r.tc),C=parseFloat(r.C);
+    if(isFinite(tc)&&isFinite(C))
+      L.push(`  | ${String(i+1).padEnd(5)} | ${String(f4(tc)).padEnd(6)} | ${String(f4(C)).padEnd(7)} |`);
+  });
+  L.push('');
+
+  L.push(D);
+  L.push('3. ТАБЛИЦА 2 — ВЫЧИСЛЕННЫЕ eps И 1/eps');L.push('');
+  L.push('  Формула: eps = C*d/(eps0*S) = C[Ф] * k');L.push('');
+  L.push('  | № изм | t, °C  | T, K   | C, нФ  | eps        | 1/eps        |');
+  L.push('  |-------|--------|--------|--------|------------|--------------|');
+  pts.forEach((pt,i)=>{
+    const mark=(pt.tc===Tc_C)?'<- theta_k':'';
+    L.push(`  | ${String(i+1).padEnd(5)} | ${String(f4(pt.tc)).padEnd(6)} | ${String(f4(pt.T)).padEnd(6)} | ${String(f4(pt.C*1e9)).padEnd(6)} | ${String(f4(pt.eps)).padEnd(10)} | ${sciT(pt.invEps,4).padEnd(12)} | ${mark}`);
+  });
+  L.push('');
+
+  L.push(D);
+  L.push('4. ТЕМПЕРАТУРА КЮРИ theta_k');L.push('');
+  L.push(isFinite(Tc_C)
+    ?`  theta_k = ${f4(Tc_C)} °C  (T_k = ${f4(Tc_K)} K)  — по максимуму eps(t), eps_max = ${sciT(epsMax,4)}`
+    :'  Нет данных.');
+  L.push('');
+
+  L.push(D);
+  L.push('5. МНК: 1/eps = b*T + a,  где b=1/A, a=-theta0/A  [T > T_k]');L.push('');
+  L.push(`  Диапазон: точки No${fromN}–${toN} (${linPts.length} точек)`);
+  if(reg){
+    const xArr2=linPts.map(p=>p.x), yArr2=linPts.map(p=>p.y);
+    const n2=reg.n;
+    const sx2p=xArr2.reduce((a,v)=>a+v,0), sy2p=yArr2.reduce((a,v)=>a+v,0);
+    const sxy2p=xArr2.reduce((a,v,i)=>a+v*yArr2[i],0);
+    const sx2sq=xArr2.reduce((a,v)=>a+v*v,0);
+    const D2=n2*sx2sq-sx2p*sx2p;
+    L.push(`  n = ${n2}`);
+    L.push(`  Sum(T)     = ${sciT(sx2p,5)} K`);
+    L.push(`  Sum(1/eps) = ${sciT(sy2p,5)}`);
+    L.push(`  Sum(T*1/eps) = ${sciT(sxy2p,5)}`);
+    L.push(`  Sum(T^2)   = ${sciT(sx2sq,5)}`);
+    L.push(`  D = n*Sum(T^2) - (Sum(T))^2 = ${sciT(D2,5)}`);
+    L.push('');
+    L.push(`  b = (n*Sum(T*1/eps) - Sum(T)*Sum(1/eps)) / D`);
+    L.push(`    = (${n2}*${sciT(sxy2p,4)} - ${sciT(sx2p,4)}*${sciT(sy2p,4)}) / ${sciT(D2,4)}`);
+    L.push(`    = ${sciT(reg.b,5)} K^-1`);
+    L.push('');
+    L.push(`  a = (Sum(1/eps) - b*Sum(T)) / n`);
+    L.push(`    = (${sciT(sy2p,4)} - ${sciT(reg.b,4)}*${sciT(sx2p,4)}) / ${n2}`);
+    L.push(`    = ${sciT(reg.a,5)}`);
+    L.push('');
+    L.push(`  R^2 = ${reg.R2.toFixed(5)}`);
+    if(isFinite(reg.sB)) L.push(`  s_b = ${sciT(reg.sB,4)} K^-1  (СКО наклона)`);
+  } else { L.push('  Нет данных.'); }
+  L.push('');
+
+  L.push(D);
+  L.push('6. МЕТОД ПАРНЫХ ТОЧЕК (коэффициент 1/A)');L.push('');
+  if(pp){
+    const sumSq=pp.pairs.reduce((s,r)=>s+(r.bi-pp.bm)**2,0);
+    L.push(`  n = ${linPts.length} точек,  k = ${pp.k} пар,  f = k-1 = ${pp.k-1}`);L.push('');
+    L.push('  | Пара | i   | j   | T_i, K    | T_j, K    | (1/eps)_i  | (1/eps)_j  | b_i, K^-1  |');
+    L.push('  |------|-----|-----|-----------|-----------|------------|------------|------------|');
+    pp.pairs.forEach((r,n)=>{
+      L.push(`  | ${String(n+1).padEnd(4)} | ${String(r.li!=null?r.li+1:'—').padEnd(3)} | ${String(r.ui!=null?r.ui+1:'—').padEnd(3)} | ${sciT(r.xi,5).padEnd(9)} | ${sciT(r.xj,5).padEnd(9)} | ${sciT(r.yi,5).padEnd(10)} | ${sciT(r.yj,5).padEnd(10)} | ${sciT(r.bi,5).padEnd(10)} |`);
+    });
+    L.push('');
+    L.push(`  <b>  = <1/A>                = ${sciT(pp.bm,5)} K^-1`);
+    L.push(`  Sum(b_i - <b>)^2            = ${sciT(sumSq,5)}`);
+    L.push(`  sigma_<b> = sqrt(Sum/(k*(k-1))) = ${sciT(pp.sB,5)} K^-1`);
+    L.push(`  t(0.90; ${pp.k-1})               = ${f4(pp.t)}`);
+    L.push(`  Delta_b = t * sigma_<b>      = ${sciT(pp.dB,5)} K^-1`);
+    L.push(`  delta_b = Delta(1/A) / |1/A| = ${(Math.abs(pp.dB/pp.bm)*100).toFixed(2)} %`);
+    L.push(`  1/A = (<b> +/- Delta_b) = (${sciT(pp.bm,5)} +/- ${sciT(pp.dB,4)}) K^-1`);
+  } else { L.push('  Нет данных (нужно >= 4 точек).'); }
+  L.push('');
+
+  L.push(D);
+  L.push('7. КОНСТАНТА КЮРИ-ВЕЙССА A И theta_0');L.push('');
+  if(isFinite(slope)&&reg){
+    const src7=pp?'<b> (МПТ)':'b (МНК)';
+    L.push(`  Используем ${src7} = ${sciT(slope,5)} K^-1`);L.push('');
+    L.push('  --- Вычисление A ---');
+    L.push(`  A = 1 / b = 1 / (${sciT(slope,5)})`);
+    L.push(`  A = ${sciT(A,5)} K`);
+    if(isFinite(dA)){
+      L.push('');
+      L.push('  --- Погрешность A ---');
+      L.push(`  delta_A = delta_b = Delta_b / |<b>| (погрешность относительная)`);
+      L.push(`  delta_A = ${sciT(pp?pp.dB:reg.sB,4)} / ${sciT(Math.abs(slope),4)} = ${(relSlope*100).toFixed(2)} %`);
+      L.push(`  Delta_A = delta_A * |A| = ${(relSlope*100).toFixed(2)}% * ${sciT(Math.abs(A),4)}`);
+      L.push(`          = ${sciT(dA,4)} K`);
+      L.push(`  A +/- Delta_A = (${sciT(A,5)} +/- ${sciT(dA,4)}) K`);
+    }
+    L.push('');
+    L.push('  --- Вычисление theta_0 ---');
+    L.push(`  a (своб. член МНК) = ${sciT(reg.a,5)}`);
+    L.push(`  theta_0 = -a / b`);
+    L.push(`          = -(${sciT(reg.a,5)}) / (${sciT(slope,5)})`);
+    L.push(`          = ${sciT(T0_K,5)} K  (${sciT(T0_C,4)} °C)`);
+    if(isFinite(Tc_K)){
+      L.push('');
+      L.push(`  theta_k = ${f4(Tc_K)} K  (${f4(Tc_C)} °C)  — из графика eps(t)`);
+      L.push(`  theta_k - theta_0 = ${f4(Tc_K)} - ${f4(T0_K)} = ${f4(Tc_K-T0_K)} K`);
+    }
+    if(isFinite(A)&&A>0){
+      L.push('');
+      if(A>=1e5&&A<=3e5) L.push('  Тип: 2-я группа (BaTiO3) — A ~ (1-3)*10^5 K');
+      else if(A>=1e3&&A<=5e4) L.push('  Тип: 1-я группа (водородные связи) — A ~ (1-5)*10^3-10^4 K');
+      else L.push(`  Тип: определите по методичке (A = ${sciT(A,3)} K)`);
+    }
+  } else { L.push('  Нет данных.'); }
+  L.push('');
+
+  L.push(D);
+  L.push('8. ИТОГОВЫЕ РЕЗУЛЬТАТЫ');L.push('');
+  L.push(`  theta_k = ${isFinite(Tc_C)?f4(Tc_C):'?'} °C  (${isFinite(Tc_K)?f4(Tc_K):'?'} K)`);
+  L.push(`  A       = ${isFinite(A)?sciT(A,5):'?'} K${isFinite(dA)?' +/- '+sciT(dA,4)+' K':''}`);
+  L.push(`  theta_0 = ${isFinite(T0_K)?f4(T0_K):'?'} K  (${isFinite(T0_C)?f4(T0_C):'?'} °C)`);
+  if(isFinite(A)&&isFinite(T0_K))
+    L.push(`  eps(T)  = ${sciT(A,4)} / (T - ${f4(T0_K)})`);
+  L.push('');
+
+  L.push(D);
+  L.push('9. ВЫВОД');L.push('');
+  L.push('  [Напишите вывод самостоятельно, опираясь на факты ниже]');L.push('');
+  if(isFinite(Tc_C)) L.push(`  Температура Кюри theta_k = ${f4(Tc_C)} °C (${f4(Tc_K)} K).`);
+  if(reg)            L.push(`  R^2 = ${reg.R2.toFixed(4)} — ${reg.R2>0.98?'подтверждает':'частично подтверждает'} линейность 1/eps(T) при T > theta_k.`);
+  if(isFinite(A))    L.push(`  A = ${sciT(A,4)} K, theta_0 = ${isFinite(T0_K)?f4(T0_K):'?'} K.`);
+  L.push('');L.push(D);
+  L.push('Дата выполнения: '+new Date().toLocaleDateString('ru-RU'));
+  document.getElementById('proto').textContent=L.join('\n');
+}
+
+// UI
+function go(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');btn.classList.add('on');
+  if(id==='eps'||id==='cw') recalcAll();
+  if(id==='proto') buildProtocol();
+  if(id==='print') setTimeout(buildPrintPreview, 50);
+}
+function recalc(){ recalcAll(); }
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2200);
+}
+function copyProto(){
+  buildProtocol();
+  navigator.clipboard.writeText(document.getElementById('proto').textContent)
+    .then(()=>showToast('Скопировано ✓'));
+}
+
+
+// =============================================================
+//  СКАЧАТЬ PYTHON-СКРИПТ ДЛЯ ГРАФИКОВ ВАК
+// =============================================================
+function downloadPyScript(){
+  const pts=getValid();
+  if(!pts.length){showToast('Введите данные в таблицу 1');return;}
+  let Tc_C=NaN,epsMax=0;
+  pts.forEach(p=>{if(p.eps>epsMax){epsMax=p.eps;Tc_C=p.tc;}});
+  let fromN=parseInt(document.getElementById('cw_from').value)||1;
+  let toN=parseInt(document.getElementById('cw_to').value)||9999;
+  let lp=pts.slice(fromN-1,Math.min(toN,pts.length)).map(p=>({x:p.T,y:p.invEps}));
+  if(lp.length<3) lp=pts.filter(p=>p.tc>Tc_C).map(p=>({x:p.T,y:p.invEps}));
+  const reg=mnk(lp), pp=mpt(lp,ppTrim);
+  const slope=pp?pp.bm:(reg?reg.b:NaN);
+
+  const L=[];
+  L.push('# -*- coding: utf-8 -*-');
+  L.push('"""');
+  L.push('Rabota 2.05 - Grafiki VAK, albom A4, GOST 7.32-2017');
+  L.push('pip install matplotlib && python plot_vak.py');
+  L.push('-> Fig1_eps_t.pdf/.png   Fig2_inv_eps_T.pdf/.png');
+  L.push('"""');
+  L.push('import matplotlib; matplotlib.use("Agg")');
+  L.push('import matplotlib.pyplot as plt');
+  L.push('import matplotlib.ticker as ticker');
+  L.push('import numpy as np');
+  L.push('');
+  L.push('plt.rcParams.update({');
+  L.push('    "font.family":       "Times New Roman",');
+  L.push('    "font.size":         10,');
+  L.push('    "axes.labelsize":    10,');
+  L.push('    "xtick.labelsize":   9,');
+  L.push('    "ytick.labelsize":   9,');
+  L.push('    "legend.fontsize":   9,');
+  L.push('    "axes.linewidth":    1.0,');
+  L.push('    "lines.linewidth":   1.5,');
+  L.push('    "xtick.major.width": 1.0,');
+  L.push('    "ytick.major.width": 1.0,');
+  L.push('    "xtick.major.size":  4.0,');
+  L.push('    "ytick.major.size":  4.0,');
+  L.push('    "xtick.minor.size":  2.0,');
+  L.push('    "ytick.minor.size":  2.0,');
+  L.push('    "xtick.direction":   "in",');
+  L.push('    "ytick.direction":   "in",');
+  L.push('    "figure.dpi":        300,');
+  L.push('    "savefig.dpi":       300,');
+  L.push('    "pdf.fonttype":      42,');
+  L.push('    "ps.fonttype":       42,');
+  L.push('})');
+  L.push('');
+  L.push('# A4 landscape, GOST 7.32 margins (mm): left=30 right=10 top=20 bottom=20');
+  L.push('A4W = 297/25.4   # 11.69 inch');
+  L.push('A4H = 210/25.4   #  8.27 inch');
+  L.push('RED = "#8B1A1A"');
+  L.push('');
+  L.push('# Normalized axes margins for subplots_adjust');
+  L.push('# Caption height = 14mm; axis X label needs ~12mm below plot');
+  L.push('# Total bottom reserve = 20(margin) + 14(caption) + 2(gap) = 36mm');
+  L.push('L_ax = 32/25.4/A4W    # left  = GOST 30mm + tick labels');
+  L.push('R_ax = 1 - 12/25.4/A4W  # right = GOST 10mm + small pad');
+  L.push('B_ax = 36/25.4/A4H    # bottom reserve (caption+margin+xlabel)');
+  L.push('T_ax = 1 - 22/25.4/A4H  # top = GOST 20mm + small pad');
+  L.push('');
+  L.push('t_data   = [' + pts.map(p=>p.tc).join(',') + ']');
+  L.push('eps_data = [' + pts.map(p=>p.eps.toFixed(0)).join(',') + ']');
+  L.push('T_lin    = [' + lp.map(p=>p.x.toFixed(2)).join(',') + ']');
+  L.push('inv_lin  = [' + lp.map(p=>p.y.toExponential(5)).join(',') + ']');
+  L.push('Tc_C = ' + (isFinite(Tc_C)?Tc_C.toFixed(1):'0'));
+  L.push('b    = ' + (reg&&isFinite(reg.b)?reg.b.toExponential(6):'0'));
+  L.push('a    = ' + (reg&&isFinite(reg.a)?reg.a.toExponential(6):'0'));
+  L.push('R2   = ' + (reg&&isFinite(reg.R2)?reg.R2.toFixed(5):'0'));
+  L.push('');
+  L.push('T_fit   = np.linspace(min(T_lin)-0.3, max(T_lin)+0.3, 300)');
+  L.push('inv_fit = b*T_fit + a  # raw values ~4e-5');
+  L.push('');
+  // ── GRAF 1 ──
+  L.push('# ── Graf 1: eps(t) ──────────────────────────────────────────');
+  L.push('fig, ax = plt.subplots(figsize=(A4W, A4H))');
+  L.push('fig.subplots_adjust(left=L_ax, right=R_ax, bottom=B_ax, top=T_ax)');
+  L.push('');
+  L.push('ax.plot(t_data, eps_data, "o-", ms=4, color="k", mfc="k", lw=0.8,');
+  L.push('        label=r"$\\varepsilon(t)$, \u044d\u043a\u0441\u043f. 10.04.2026")');
+  L.push('ax.axvline(Tc_C, color=RED, ls="--", lw=1.2,');
+  L.push('           label=fr"$\\theta_k = {Tc_C:.0f}\\,\u00b0C$ (\u043c\u0430\u043a\u0441\u0438\u043c\u0443\u043c $\\varepsilon$)")');
+  L.push('ax.text(Tc_C+0.8, max(eps_data)*0.06,');
+  L.push('        fr"$\\theta_k={Tc_C:.0f}\\,\u00b0C$",');
+  L.push('        color=RED, fontsize=9, va="bottom", ha="left")');
+  L.push('');
+  L.push('ax.set_xlabel(r"$t$, \u00b0C")');
+  L.push('ax.set_ylabel(r"$\\varepsilon$")');
+  L.push('ax.set_xlim(min(t_data)-2, max(t_data)+2)');
+  L.push('ax.set_ylim(0)');
+  L.push('ax.xaxis.set_major_locator(ticker.MultipleLocator(20))');
+  L.push('ax.xaxis.set_minor_locator(ticker.MultipleLocator(10))');
+  L.push('ax.yaxis.set_major_locator(ticker.MultipleLocator(5000))');
+  L.push('ax.yaxis.set_minor_locator(ticker.MultipleLocator(1000))');
+  L.push('[ax.spines[s].set_linewidth(1.0) for s in ax.spines]');
+  L.push('ax.tick_params(which="both", top=True, right=True)');
+  L.push('ax.grid(True, which="major", ls=":", lw=0.4, color="#ccc")');
+  L.push('ax.legend(loc="upper left", framealpha=0.93, edgecolor="#aaa")');
+  L.push('');
+  L.push('# Caption BELOW the axes, within figure (not cutting into plot)');
+  L.push('cap1 = (r"\u0420\u0438\u0441. 1. \u0422\u0435\u043c\u043f\u0435\u0440\u0430\u0442\u0443\u0440\u043d\u0430\u044f \u0437\u0430\u0432\u0438\u0441\u0438\u043c\u043e\u0441\u0442\u044c \u0434\u0438\u044d\u043b\u0435\u043a\u0442\u0440\u0438\u0447\u0435\u0441\u043a\u043e\u0439 \u043f\u0440\u043e\u043d\u0438\u0446\u0430\u0435\u043c\u043e\u0441\u0442\u0438 $\\varepsilon(t)$ "');
+  L.push('         r"\u0441\u0435\u0433\u043d\u0435\u0442\u043e\u044d\u043b\u0435\u043a\u0442\u0440\u0438\u043a\u0430 BaTiO$_3$(Sr). \u0414\u0430\u043d\u043d\u044b\u0435 \u044d\u043a\u0441\u043f\u0435\u0440\u0438\u043c\u0435\u043d\u0442\u0430 10.04.2026.")');
+  L.push('fig.text((L_ax+R_ax)/2, 16/25.4/A4H,');
+  L.push('         cap1, ha="center", va="center",');
+  L.push('         fontsize=9, style="italic",');
+  L.push('         transform=fig.transFigure)');
+  L.push('');
+  L.push('fig.savefig("Fig1_eps_t.pdf", bbox_inches="tight", facecolor="white")');
+  L.push('fig.savefig("Fig1_eps_t.png", dpi=300, bbox_inches="tight", facecolor="white")');
+  L.push('plt.close(fig)');
+  L.push('print("Fig1 OK")');
+  L.push('');
+  // ── GRAF 2 ──
+  L.push('# ── Graf 2: 1/eps(T) ─────────────────────────────────────────');
+  L.push('fig, ax = plt.subplots(figsize=(A4W, A4H))');
+  L.push('# Slightly more left margin for Y axis numbers in sci notation');
+  L.push('fig.subplots_adjust(left=L_ax+0.01, right=R_ax, bottom=B_ax, top=T_ax)');
+  L.push('');
+  L.push('ax.plot(T_lin, inv_lin, "o", ms=4.5, color="k", mfc="k", lw=0,');
+  L.push('        label=r"$1/\\varepsilon$, \u044d\u043a\u0441\u043f. 10.04.2026")');
+  L.push('ax.plot(T_fit, inv_fit, "-", color=RED, lw=1.5,');
+  L.push('        label="\u041c\u041d\u041a-\u0430\u043f\u043f\u0440\u043e\u043a\u0441\u0438\u043c\u0430\u0446\u0438\u044f")');
+  L.push('');
+  L.push('ax.set_xlabel(r"$T$, K")');
+  L.push('ax.set_ylabel(r"$1/\\varepsilon$")');
+  L.push('');
+  L.push('# Y axis: use FuncFormatter to show values as X.XX (×10^-5)');
+  L.push('# This avoids the "425000" display bug from ticklabel_format');
+  L.push('ax.yaxis.set_major_formatter(');
+  L.push('    ticker.FuncFormatter(lambda x, _: f"{x*1e5:.2f}"))');
+  L.push('# Add multiplier annotation at top-left of axes');
+  L.push('ax.annotate(r"$\\times10^{-5}$",');
+  L.push('            xy=(0, 1.01), xycoords="axes fraction",');
+  L.push('            fontsize=9, ha="left", va="bottom")');
+  L.push('');
+  L.push('xpad = (max(T_lin)-min(T_lin))*0.06');
+  L.push('ax.set_xlim(min(T_lin)-xpad, max(T_lin)+xpad)');
+  L.push('ax.xaxis.set_major_locator(ticker.MultipleLocator(2))');
+  L.push('ax.xaxis.set_minor_locator(ticker.MultipleLocator(1))');
+  L.push('[ax.spines[s].set_linewidth(1.0) for s in ax.spines]');
+  L.push('ax.tick_params(which="both", top=True, right=True)');
+  L.push('ax.grid(True, which="major", ls=":", lw=0.4, color="#ccc")');
+  L.push('ax.legend(loc="upper left", framealpha=0.93, edgecolor="#aaa")');
+  L.push('');
+  L.push('cap2 = (r"\u0420\u0438\u0441. 2. \u0417\u0430\u0432\u0438\u0441\u0438\u043c\u043e\u0441\u0442\u044c $1/\\varepsilon$ \u043e\u0442 \u0442\u0435\u043c\u043f\u0435\u0440\u0430\u0442\u0443\u0440\u044b $T$ \u0434\u043b\u044f BaTiO$_3$(Sr) "');
+  L.push('         r"\u043f\u0440\u0438 $T>\\theta_k$. \u041f\u0440\u044f\u043c\u0430\u044f \u2014 \u041c\u041d\u041a (\u0437\u0430\u043a\u043e\u043d \u041a\u044e\u0440\u0438\u2013\u0412\u0435\u0439\u0441\u0441\u0430).")');
+  L.push('fig.text((L_ax+R_ax)/2, 16/25.4/A4H,');
+  L.push('         cap2, ha="center", va="center",');
+  L.push('         fontsize=9, style="italic",');
+  L.push('         transform=fig.transFigure)');
+  L.push('');
+  L.push('fig.savefig("Fig2_inv_eps_T.pdf", bbox_inches="tight", facecolor="white")');
+  L.push('fig.savefig("Fig2_inv_eps_T.png", dpi=300, bbox_inches="tight", facecolor="white")');
+  L.push('plt.close(fig)');
+  L.push('print("Fig2 OK")');
+  L.push('print("Done: Fig1_eps_t.pdf/.png  Fig2_inv_eps_T.pdf/.png")');
+
+  const blob = new Blob([L.join('\n')], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.download = 'plot_vak.py';
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  showToast('plot_vak.py \u2713');
+}
+
+
+
+// =============================================================
+//  ПРЕВЬЮ ГРАФИКОВ НА ВКЛАДКЕ "ПЕЧАТЬ ГРАФИКОВ"
+// =============================================================
+let prevEpsChart=null, prevCwChart=null;
+
+function buildPrintPreview(){
+  try{
+    const pts=getValid();
+    const el1=document.getElementById('prev_eps');
+    const el2=document.getElementById('prev_cw');
+
+    if(!pts.length){
+      [el1,el2].forEach(el=>{
+        if(!el)return;
+        const pw=el.parentElement.clientWidth||400;
+        const ph=Math.round(pw*210/297);
+        el.width=pw; el.height=ph;
+        const ctx=el.getContext('2d');
+        ctx.fillStyle='#f8f8f8'; ctx.fillRect(0,0,pw,ph);
+        ctx.fillStyle='#999'; ctx.font='13px sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('Введите данные в таблицу 1',pw/2,ph/2);
+      });
+      return;
+    }
+
+    let Tc_C=NaN,epsMax=0;
+    pts.forEach(p=>{if(p.eps>epsMax){epsMax=p.eps;Tc_C=p.tc;}});
+
+    let fromN=parseInt(document.getElementById('cw_from').value)||1;
+    let toN=parseInt(document.getElementById('cw_to').value)||9999;
+    let lp=pts.slice(fromN-1,Math.min(toN,pts.length)).map((p,i)=>({x:p.T,y:p.invEps,origIdx:i}));
+    if(lp.length<3) lp=pts.filter(p=>p.tc>Tc_C).map((p,i)=>({x:p.T,y:p.invEps,origIdx:i}));
+    const reg=mnk(lp);
+
+    // Aspect ratio A4 landscape
+    const ratio=210/297;
+    const RED='#8B1A1A';
+
+    // ── Превью 1: eps(t) ──
+    if(el1){
+      if(prevEpsChart){prevEpsChart.destroy();prevEpsChart=null;}
+      const pw=el1.parentElement.clientWidth||420;
+      const ph=Math.round(pw*ratio);
+      el1.width=pw; el1.height=ph;
+      const ds=[{
+        label:'ε(t), эксп.',
+        data:pts.map(p=>({x:p.tc,y:p.eps})),
+        borderColor:'#000',backgroundColor:'#000',
+        pointRadius:3,pointHoverRadius:4,
+        showLine:true,borderWidth:1,tension:0.2
+      }];
+      if(isFinite(Tc_C)){
+        const eM=Math.max(...pts.map(p=>p.eps));
+        ds.push({
+          label:'θₖ = '+Tc_C.toFixed(0)+'°C',
+          data:[{x:Tc_C,y:0},{x:Tc_C,y:eM*1.05}],
+          type:'line',borderColor:RED,borderWidth:1.5,
+          borderDash:[5,3],pointRadius:0,showLine:true,fill:false
+        });
+      }
+      prevEpsChart=new Chart(el1.getContext('2d'),{
+        type:'scatter',data:{datasets:ds},
+        options:{
+          responsive:false,animation:false,
+          plugins:{
+            legend:{display:true,position:'top',
+              labels:{font:{family:'"Times New Roman",serif',size:10},
+                      color:'#000',boxWidth:24,padding:8}},
+            title:{display:false}
+          },
+          layout:{padding:{left:8,right:12,top:4,bottom:8}},
+          scales:{
+            x:{title:{display:true,text:'t, °C',font:{family:'"Times New Roman",serif',size:10},color:'#000'},
+               ticks:{font:{family:'"Times New Roman",serif',size:9},color:'#000'},
+               grid:{color:'rgba(0,0,0,0.08)'},
+               border:{color:'#000',width:1}},
+            y:{title:{display:true,text:'ε',font:{family:'"Times New Roman",serif',size:10},color:'#000'},
+               min:0,
+               ticks:{font:{family:'"Times New Roman",serif',size:9},color:'#000'},
+               grid:{color:'rgba(0,0,0,0.08)'},
+               border:{color:'#000',width:1}}
+          }
+        }
+      });
+    }
+
+    // ── Превью 2: 1/eps(T) ──
+    if(el2){
+      if(prevCwChart){prevCwChart.destroy();prevCwChart=null;}
+      const pw=el2.parentElement.clientWidth||420;
+      const ph=Math.round(pw*ratio);
+      el2.width=pw; el2.height=ph;
+      const ds2=[{
+        label:'1/ε, эксп.',
+        data:lp.map(p=>({x:p.x,y:p.y*1e5})),
+        borderColor:'#000',backgroundColor:'#000',
+        pointRadius:3.5,pointHoverRadius:5,
+        showLine:false
+      }];
+      if(reg){
+        const xs=[Math.min(...lp.map(p=>p.x)),Math.max(...lp.map(p=>p.x))];
+        ds2.push({
+          label:'МНК',
+          data:xs.map(x=>({x,y:(reg.a+reg.b*x)*1e5})),
+          type:'line',borderColor:RED,borderWidth:1.5,
+          pointRadius:0,showLine:true,fill:false
+        });
+      }
+      prevCwChart=new Chart(el2.getContext('2d'),{
+        type:'scatter',data:{datasets:ds2},
+        options:{
+          responsive:false,animation:false,
+          plugins:{
+            legend:{display:true,position:'top',
+              labels:{font:{family:'"Times New Roman",serif',size:10},
+                      color:'#000',boxWidth:24,padding:8}},
+            title:{display:false}
+          },
+          layout:{padding:{left:8,right:12,top:4,bottom:8}},
+          scales:{
+            x:{title:{display:true,text:'T, K',font:{family:'"Times New Roman",serif',size:10},color:'#000'},
+               ticks:{font:{family:'"Times New Roman",serif',size:9},color:'#000'},
+               grid:{color:'rgba(0,0,0,0.08)'},
+               border:{color:'#000',width:1}},
+            y:{title:{display:true,text:'1/ε ×10⁻⁵',font:{family:'"Times New Roman",serif',size:10},color:'#000'},
+               ticks:{font:{family:'"Times New Roman",serif',size:9},color:'#000',
+                      callback:v=>v.toFixed(2).replace('.',',')},
+               grid:{color:'rgba(0,0,0,0.08)'},
+               border:{color:'#000',width:1}}
+          }
+        }
+      });
+    }
+  }catch(e){console.error('Preview:',e);}
+}
+
+
+// ИНИЦИАЛИЗАЦИЯ
+rows=Array.from({length:15},()=>({tc:'',C:''}));
+renderT1();
+updParams();
+</script>
+</body>
+</html>
